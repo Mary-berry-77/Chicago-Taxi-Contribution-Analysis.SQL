@@ -5,6 +5,7 @@ This repository contains SQL queries and analysis related to Chicago taxi trips,
 - **Chicago Taxi Trips Dataset**: [BigQuery Public Dataset](https://bigquery-public-data.googleapis.com). This dataset contains records of taxi trips in Chicago.
   
 
+
 SELECT 
   taxi_id,
   num_of_trips,
@@ -15,22 +16,18 @@ SELECT
     WHEN percentile_rank <= 0.5 THEN "top 50%"
     ELSE "below 50%"
   END AS contribution_category
-
 FROM (
         SELECT
           taxi_id,
           num_of_trips,
           contribution,
-          PERCENT_RANk() OVER (ORDER BY contribution DESC) AS percentile_rank
-          
+          PERCENT_RANk() OVER (ORDER BY contribution DESC) AS percentile_rank      
         FROM(
                 SELECT  
                   taxi_id,
                   COUNT(taxi_id) AS num_of_trips,
                   (SELECT COUNT(unique_key) FROM `bigquery-public-data.chicago_taxi_trips.taxi_trips`) AS total_num_trips,
-                  COUNT(taxi_id)/(SELECT COUNT(unique_key) FROM `bigquery-public-data.chicago_taxi_trips.taxi_trips`) AS contribution
-                    
-
+                  COUNT(taxi_id)/(SELECT COUNT(unique_key) FROM `bigquery-public-data.chicago_taxi_trips.taxi_trips`) AS contribution     
                 FROM `bigquery-public-data.chicago_taxi_trips.taxi_trips` 
                 GROUP BY taxi_id
                 HAVING COUNT(taxi_id) > 0
